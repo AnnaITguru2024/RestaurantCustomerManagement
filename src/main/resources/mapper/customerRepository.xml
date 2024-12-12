@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="portfolio.RestaurantCustomerManagement.repository.CustomerRepository">
+
+  <!-- 顧客の全件検索 -->
+  <select id="findAllCustomers" resultType="portfolio.RestaurantCustomerManagement.data.Customer">
+    SELECT * FROM customer
+  </select>
+
+  <!-- 顧客のID検索 -->
+  <select id="findCustomerById" parameterType="int" resultType="portfolio.RestaurantCustomerManagement.data.Customer">
+    SELECT * FROM customer WHERE id = #{id}
+  </select>
+
+  <!-- 顧客詳細情報の条件検索 -->
+  <select id="findCustomerDetailsByConditions" resultMap="CustomerDetailMap">
+    SELECT
+    c.id AS customer_id, c.name, c.furigana, c.gender, c.phone_number, c.email, c.address,
+    p.id AS preference_id, p.preference AS preference_value, p.customer_id AS preference_customer_id,
+    v.id AS visit_record_id, v.visit_date, v.total_spent AS total_spent, v.notes AS visit_notes, v.customer_id AS visit_record_customer_id
+    FROM customer c
+    LEFT JOIN preferences p ON c.id = p.customer_id
+    LEFT JOIN visit_records v ON c.id = v.customer_id
+    WHERE 1=1
+    <if test="name != null and name != ''">
+      AND c.name LIKE CONCAT('%', #{name}, '%')
+    </if>
+    <if test="furigana != null and furigana != ''">
+      AND c.furigana LIKE CONCAT('%', #{furigana}, '%')
+    </if>
+    <if test="gender != null">
+      AND c.gender = #{gender}
+    </if>
+    <if test="phoneNumber != null and phoneNumber != ''">
+      AND c.phone_number LIKE CONCAT('%', #{phoneNumber}, '%')
+    </if>
+    <if test="email != null and email != ''">
+      AND c.email LIKE CONCAT('%', #{email}, '%')
+    </if>
+    <if test="address != null and address != ''">
+      AND c.address LIKE CONCAT('%', #{address}, '%')
+    </if>
+  </select>
+
+
+  <resultMap id="CustomerDetailMap" type="portfolio.RestaurantCustomerManagement.domain.CustomerDetail">
+    <!-- 顧客情報のマッピング -->
+    <association property="customer" javaType="portfolio.RestaurantCustomerManagement.data.Customer">
+      <id property="id" column="customer_id" />
+      <result property="name" column="name" />
+      <result property="furigana" column="furigana" />
+      <result property="gender" column="gender" />
+      <result property="phoneNumber" column="phone_number" />
+      <result property="email" column="email" />
+      <result property="address" column="address" />
+    </association>
+
+    <!-- 顧客の好み情報のマッピング -->
+    <collection property="preferences" ofType="portfolio.RestaurantCustomerManagement.data.Preferences">
+      <id property="id" column="preference_id" />
+      <result property="preference" column="preference_value" />
+      <result property="customerId" column="preference_customer_id" />
+    </collection>
+
+    <!-- 顧客の訪問履歴のマッピング -->
+    <collection property="visitRecords" ofType="portfolio.RestaurantCustomerManagement.data.VisitRecords">
+      <id property="id" column="visit_record_id" />
+      <result property="visitDate" column="visit_date" />
+      <result property="totalSpent" column="total_spent" />
+      <result property="notes" column="visit_notes" />
+      <result property="customerId" column="visit_record_customer_id" />
+    </collection>
+  </resultMap>
+
+
+  <insert id="registerCustomer" parameterType="portfolio.RestaurantCustomerManagement.data.Customer" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO customer (name, furigana, gender, phone_number, email, birthday, address)
+    VALUES (#{name}, #{furigana}, #{gender}, #{phoneNumber}, #{email}, #{birthday}, #{address})
+  </insert>
+
+  <insert id="registerPreferences" parameterType="portfolio.RestaurantCustomerManagement.data.Preferences" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO preferences (customer_id, preference)
+    VALUES (#{customerId}, #{preference})
+  </insert>
+
+  <insert id="registerVisitRecords" parameterType="portfolio.RestaurantCustomerManagement.data.VisitRecords" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO visit_records (customer_id, visit_date, total_spent, notes)
+    VALUES (#{customerId}, #{visitDate}, #{totalSpent}, #{notes})
+  </insert>
+
+  <!-- 顧客情報の更新 -->
+  <update id="updateCustomer" parameterType="portfolio.RestaurantCustomerManagement.data.Customer">
+    UPDATE customer
+    SET name = #{name}, furigana = #{furigana}, gender = #{gender}, phone_number = #{phoneNumber},
+    email = #{email}, birthday = #{birthday}, address = #{address}, updated_at = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <!-- 訪問履歴の更新 -->
+  <update id="updateVisitRecords" parameterType="portfolio.RestaurantCustomerManagement.data.VisitRecords">
+    UPDATE visit_records
+    SET
+    visit_date = #{visitDate},
+    total_spent = #{totalSpent},
+    notes = #{notes},
+    updated_at = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <!-- 顧客の好みの更新 -->
+  <update id="updatePreferences" parameterType="portfolio.RestaurantCustomerManagement.data.Preferences">
+    UPDATE preferences
+    SET
+    preference = #{preference},
+    updated_at = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <!-- 顧客情報の削除 -->
+  <delete id="deleteCustomerById" parameterType="int">
+    DELETE FROM customer WHERE id = #{id}
+  </delete>
+
+  <!-- 顧客の好みを全件検索 -->
+  <select id="findAllPreferences" resultType="portfolio.RestaurantCustomerManagement.data.Preferences">
+    SELECT * FROM preferences
+  </select>
+
+  <!-- 顧客の好みを検索 -->
+  <select id="findPreferencesByCustomerId" parameterType="int" resultType="portfolio.RestaurantCustomerManagement.data.Preferences">
+    SELECT * FROM preferences WHERE customer_id = #{customerId}
+  </select>
+
+  <!-- 訪問記録の全件検索 -->
+  <select id="findAllVisitRecords" resultType="portfolio.RestaurantCustomerManagement.data.VisitRecords">
+    SELECT * FROM visit_records
+  </select>
+
+  <!-- 顧客IDに基づく訪問記録の検索 -->
+  <select id="findVisitRecordsByCustomerId" parameterType="int" resultType="portfolio.RestaurantCustomerManagement.data.VisitRecords">
+    SELECT * FROM visit_records WHERE customer_id = #{customerId}
+  </select>
+
+  <!-- 訪問記録の削除 -->
+  <delete id="deleteVisitRecordById" parameterType="int">
+    DELETE FROM visit_records WHERE id = #{id}
+  </delete>
+
+</mapper>
+
