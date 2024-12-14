@@ -8,7 +8,6 @@ import portfolio.RestaurantCustomerManagement.data.Preferences;
 import portfolio.RestaurantCustomerManagement.data.VisitRecords;
 import portfolio.RestaurantCustomerManagement.domain.CustomerDetail;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -106,7 +105,6 @@ class CustomerConverterTest {
     assertThat(actual.get(0).getPreferences()).isEmpty();
     assertThat(actual.get(0).getVisitRecords()).isEmpty();
   }
-
 
   @Test
   void 空のリストを渡した場合に空の顧客詳細リストが返されること() {
