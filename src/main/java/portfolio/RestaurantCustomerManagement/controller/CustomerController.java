@@ -14,6 +14,7 @@ import portfolio.RestaurantCustomerManagement.data.Customer;
 import portfolio.RestaurantCustomerManagement.data.Preferences;
 import portfolio.RestaurantCustomerManagement.data.VisitRecords;
 import portfolio.RestaurantCustomerManagement.domain.CustomerDetail;
+import portfolio.RestaurantCustomerManagement.exception.NotFoundException;
 import portfolio.RestaurantCustomerManagement.service.CustomerService;
 
 import java.util.List;
@@ -74,8 +75,12 @@ public class CustomerController {
   )
   @GetMapping("/customers/{customerId}")
   public ResponseEntity<CustomerDetail> getCustomerById(@PathVariable int customerId) {
-    CustomerDetail customer = service.findCustomerById(customerId);
-    return ResponseEntity.ok(customer);
+    try {
+      CustomerDetail customer = service.findCustomerById(customerId);
+      return ResponseEntity.ok(customer);
+    } catch (NotFoundException e) {
+      throw new portfolio.RestaurantCustomerManagement.exception.NotFoundException(e.getMessage());
+    }
   }
 
   /**
