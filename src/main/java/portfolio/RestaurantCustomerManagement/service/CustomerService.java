@@ -225,32 +225,20 @@ public class CustomerService {
   }
 
   /**
-   * 顧客を削除します。
+   * 特定の顧客と関連データを削除します。
    *
    * @param customerId 削除する顧客ID
    */
   @Transactional
-  public void deleteCustomerById(int customerId) {
-    repository.deleteCustomerById(customerId);
-  }
+  public void deleteCustomerData(int customerId) {
+    // 顧客が存在するか確認
+    if (!repository.existsCustomerById(customerId)) {
+      throw new NotFoundException("顧客が見つかりません: ID = " + customerId);
+    }
 
-  /**
-   * 特定の顧客の訪問履歴を削除します。
-   *
-   * @param customerId 顧客ID
-   */
-  @Transactional
-  public void deleteVisitRecordsByCustomerId(int customerId) {
+    // 顧客関連データの削除
     repository.deleteVisitRecordsByCustomerId(customerId);
-  }
-
-  /**
-   * 特定の顧客の好み情報を削除します。
-   *
-   * @param customerId 顧客ID
-   */
-  @Transactional
-  public void deletePreferencesByCustomerId(int customerId) {
     repository.deletePreferencesByCustomerId(customerId);
+    repository.deleteCustomerById(customerId);
   }
 }

@@ -204,4 +204,28 @@ public class CustomerController {
       return ResponseEntity.ok(visitRecords);
     }
   }
+
+  /**
+   * 特定の顧客を削除します。
+   *
+   * @param customerId 顧客ID
+   * @return 削除結果メッセージ
+   */
+  @Operation(
+      summary = "顧客削除",
+      description = "指定された顧客IDに基づいて顧客と関連するデータを削除します。",
+      responses = {
+          @ApiResponse(responseCode = "200", description = "削除成功"),
+          @ApiResponse(responseCode = "404", description = "顧客が見つかりませんでした")
+      }
+  )
+  @DeleteMapping("/customers/{customerId}")
+  public ResponseEntity<String> deleteCustomer(@PathVariable int customerId) {
+    try {
+      service.deleteCustomerData(customerId);
+      return ResponseEntity.ok("顧客データを削除しました。");
+    } catch (NotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
 }
