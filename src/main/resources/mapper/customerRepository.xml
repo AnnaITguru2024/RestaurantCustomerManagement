@@ -118,11 +118,6 @@
     WHERE id = #{id}
   </update>
 
-  <!-- 顧客情報の削除 -->
-  <delete id="deleteCustomerById" parameterType="int">
-    DELETE FROM customer WHERE id = #{id}
-  </delete>
-
   <!-- 顧客の好みを全件検索 -->
   <select id="findAllPreferences" resultType="portfolio.RestaurantCustomerManagement.data.Preferences">
     SELECT * FROM preferences
@@ -143,10 +138,26 @@
     SELECT * FROM visit_records WHERE customer_id = #{customerId}
   </select>
 
-  <!-- 訪問記録の削除 -->
-  <delete id="deleteVisitRecordById" parameterType="int">
-    DELETE FROM visit_records WHERE id = #{id}
+  <!-- 顧客の存在確認 -->
+  <select id="existsCustomerById" parameterType="int" resultType="boolean">
+    SELECT COUNT(1) > 0
+    FROM customer
+    WHERE id = #{customerId}
+  </select>
+
+  <!-- 顧客情報の削除 -->
+  <delete id="deleteCustomerById" parameterType="int">
+    DELETE FROM customer WHERE id = #{customerId}
   </delete>
 
+  <!-- 訪問履歴の削除 -->
+  <delete id="deleteVisitRecordsByCustomerId" parameterType="int">
+    DELETE FROM visit_records WHERE customer_id = #{customerId}
+  </delete>
+
+  <!-- 好み情報の削除 -->
+  <delete id="deletePreferencesByCustomerId" parameterType="int">
+    DELETE FROM preferences WHERE customer_id = #{customerId}
+  </delete>
 </mapper>
 

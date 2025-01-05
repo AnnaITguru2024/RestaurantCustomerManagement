@@ -123,6 +123,9 @@ public interface CustomerRepository {
    */
   void updatePreferences(Preferences preferences);
 
+  // 顧客が存在するか確認
+  boolean existsCustomerById(@Param("customerId") int customerId);
+
   /**
    * 特定の顧客を削除します。
    *
